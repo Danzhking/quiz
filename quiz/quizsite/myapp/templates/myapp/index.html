@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Легкий Квиз!</title>
+	<link rel="stylesheet" href="{% static 'myapp/main.css' %}" />
+</head>
+
+<body>
+
+	<div class="quiz" id="quiz">
+
+		<div class="quiz-header" id="header">
+			<!-- Заголовок вопроса -->
+			<h2 class="title">Пройдите тестирование на знание Git и JavaScript!</h2>
+		</div>
+
+		<a href="{% url 'quiz-view' %}?start_quiz=true">
+			<button type="button" class="quiz-submit submit">Далее</button>
+		</a>
+
+	</div>
+
+
+</body>
+
+</html>

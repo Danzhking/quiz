@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Легкий Квиз!</title>
+    <link rel="stylesheet" href="{% static 'myapp/main.css' %}" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+    <div class="quiz" id="quiz">
+
+        <form id="quizForm">
+            {% csrf_token %}
+            <div class="quiz-header" id="header">
+                <h2 class="title" id="questionText">{{ current_question.text }}</h2>
+            </div>
+
+            <ul class="quiz-list" id="list">
+                {% for answer in current_question.answers.all %}
+                <li>
+                    <label>
+                        <input type="checkbox" class="answer" name="answer" value="{{ answer.text }}" />
+                        <span>{{ answer.text }}</span>
+                    </label>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <button type="button" class="quiz-submit submit" id="submit">Ответить</button>
+        </form>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#submit').click(function () {
+                var selectedAnswers = $('input[name=answer]:checked').map(function () {
+                    return $(this).attr('value');
+                }).get();
+                if (selectedAnswers.length === 0) {
+                    alert('Пожалуйста, выберите ответ.');
+                    return;
+                }
+                $.ajax({
+                    url: "{% url 'quiz-view' %}",
+                    method: "POST",
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        answers: selectedAnswers
+                    },
+                    success: function (response) {
+                        console.log("Server Response:", response); 
+                        if (response.question_text === 'Вопросы закончились!') {
+                            window.location.href = "{% url 'result-page' %}?score=" + response.score;
+                        } else {
+                            $('#questionText').text(response.question_text);
+                            $('#list').empty();
+                            $.each(response.answers, function (index, answer) {
+                                $('#list').append('<li><label><input type="checkbox" class="answer" name="answer" value="' + answer + '" /><span>' + answer + '</span></label></li>');
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        console.log("Ajax Error:", error);  
+                    }
+                });
+
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
